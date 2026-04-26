@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — NOON GC INC.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<!-- ═══════════════════ LOGIN SCREEN ═══════════════════ -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <span class="login-bolt">⚡</span>
+      <div>
+        <strong>NOON GC INC.</strong>
+        <span>Espace Administration</span>
+      </div>
+    </div>
+    <h2>Connexion</h2>
+    <p class="login-sub">Accès réservé au propriétaire du site</p>
+    <div id="loginError" class="login-error" style="display:none">
+      <i class="fas fa-exclamation-triangle"></i> Mot de passe incorrect
+    </div>
+    <div class="fg">
+      <label>Mot de passe</label>
+      <div class="pwd-wrap">
+        <input type="password" id="loginPwd" placeholder="••••••••" onkeydown="if(event.key==='Enter') doLogin()">
+        <button onclick="togglePwd()" class="pwd-eye"><i class="fas fa-eye" id="eyeIcon"></i></button>
+      </div>
+    </div>
+    <button class="btn-login" onclick="doLogin()">
+      <i class="fas fa-sign-in-alt"></i> Accéder au tableau de bord
+    </button>
+    <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Retour au site</a>
+  </div>
+</div>
+
+<!-- ═══════════════════ ADMIN LAYOUT ═══════════════════ -->
+<div id="adminApp" class="admin-app" style="display:none">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <span class="sb-bolt">⚡</span>
+      <div>
+        <strong>NOON GC INC.</strong>
+        <span>Administration</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="sb-link active" onclick="showView('dashboard')" data-view="dashboard">
+        <i class="fas fa-tachometer-alt"></i><span>Tableau de bord</span>
+      </button>
+      <button class="sb-link" onclick="showView('newDevis')" data-view="newDevis">
+        <i class="fas fa-file-alt"></i><span>Nouveau Devis</span>
+      </button>
+      <button class="sb-link" onclick="showView('newFacture')" data-view="newFacture">
+        <i class="fas fa-file-invoice-dollar"></i><span>Nouvelle Facture</span>
+      </button>
+      <div class="sb-divider">Gestion</div>
+      <button class="sb-link" onclick="showView('jobs')" data-view="jobs">
+        <i class="fas fa-briefcase"></i><span>Tous les Travaux</span>
+      </button>
+      <div class="sb-divider">Site</div>
+      <button class="sb-link" onclick="showView('editor')" data-view="editor">
+        <i class="fas fa-edit"></i><span>Éditeur du Site</span>
+      </button>
+      <button class="sb-link" onclick="showView('settings')" data-view="settings">
+        <i class="fas fa-cog"></i><span>Paramètres</span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="index.html" target="_blank" class="sb-site-link">
+        <i class="fas fa-globe"></i> Voir le site
+      </a>
+      <button onclick="doLogout()" class="sb-logout">
+        <i class="fas fa-sign-out-alt"></i> Déconnexion
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <div class="admin-main">
+    <!-- Top bar -->
+    <header class="admin-topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title" id="topbarTitle">Tableau de bord</div>
+      <div class="topbar-right">
+        <div class="topbar-user">
+          <div class="user-avatar">S</div>
+          <span>Sanad Muhmud</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── DASHBOARD VIEW ── -->
+    <div id="view-dashboard" class="view active">
+      <div class="view-header">
+        <h1>Tableau de bord</h1>
+        <div class="view-header-actions">
+          <button class="btn-act btn-gold" onclick="showView('newDevis')">
+            <i class="fas fa-plus"></i> Nouveau Devis
+          </button>
+          <button class="btn-act btn-navy" onclick="showView('newFacture')">
+            <i class="fas fa-plus"></i> Nouvelle Facture
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid" id="statsGrid"></div>
+
+      <!-- Recent jobs -->
+      <div class="card mt-2">
+        <div class="card-header">
+          <h3><i class="fas fa-clock"></i> Travaux Récents</h3>
+          <button class="btn-text" onclick="showView('jobs')">Voir tout →</button>
+        </div>
+        <div id="recentJobs"></div>
+      </div>
+    </div>
+
+    <!-- ── NEW DEVIS VIEW ── -->
+    <div id="view-newDevis" class="view">
+      <div class="view-header">
+        <h1><i class="fas fa-file-alt"></i> Nouveau Devis / Estimate</h1>
+      </div>
+      <div class="card">
+        <div id="devisForm"></div>
+      </div>
+    </div>
+
+    <!-- ── NEW FACTURE VIEW ── -->
+    <div id="view-newFacture" class="view">
+      <div class="view-header">
+        <h1><i class="fas fa-file-invoice-dollar"></i> Nouvelle Facture / Invoice</h1>
+      </div>
+      <div class="card">
+        <div id="factureForm"></div>
+      </div>
+    </div>
+
+    <!-- ── JOBS VIEW ── -->
+    <div id="view-jobs" class="view">
+      <div class="view-header">
+        <h1><i class="fas fa-briefcase"></i> Tous les Travaux</h1>
+        <div class="view-header-actions">
+          <div class="filter-group">
+            <select id="jobFilter" onchange="renderJobsList()">
+              <option value="all">Tous</option>
+              <option value="devis">Devis seulement</option>
+              <option value="facture">Factures seulement</option>
+              <option value="pending">En attente</option>
+              <option value="paid">Payés</option>
+            </select>
+            <input type="text" id="jobSearch" placeholder="Rechercher client..." oninput="renderJobsList()">
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div id="jobsList"></div>
+      </div>
+    </div>
+
+    <!-- ── SITE EDITOR VIEW ── -->
+    <div id="view-editor" class="view">
+      <div class="view-header">
+        <h1><i class="fas fa-edit"></i> Éditeur du Site</h1>
+        <button class="btn-act btn-gold" onclick="saveEditorSettings()">
+          <i class="fas fa-save"></i> Enregistrer les modifications
+        </button>
+      </div>
+      <div class="editor-tabs">
+        <button class="etab active" onclick="switchEditorTab('hero', this)"><i class="fas fa-home"></i> Hero</button>
+        <button class="etab" onclick="switchEditorTab('about', this)"><i class="fas fa-user"></i> À Propos</button>
+        <button class="etab" onclick="switchEditorTab('services', this)"><i class="fas fa-tools"></i> Services</button>
+        <button class="etab" onclick="switchEditorTab('contact', this)"><i class="fas fa-phone"></i> Contact</button>
+        <button class="etab" onclick="switchEditorTab('images', this)"><i class="fas fa-images"></i> Images</button>
+        <button class="etab" onclick="switchEditorTab('typo', this)"><i class="fas fa-font"></i> Typographie</button>
+      </div>
+
+      <!-- Hero tab -->
+      <div id="etab-hero" class="etab-content active card">
+        <div class="form-row-2">
+          <div class="fg">
+            <label>Titre ligne 1 (FR)</label>
+            <input type="text" id="ed-hero-l1-fr">
+          </div>
+          <div class="fg">
+            <label>Title line 1 (EN)</label>
+            <input type="text" id="ed-hero-l1-en">
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="fg">
+            <label>Titre accentué (FR)</label>
+            <input type="text" id="ed-hero-l2-fr">
+          </div>
+          <div class="fg">
+            <label>Accented title (EN)</label>
+            <input type="text" id="ed-hero-l2-en">
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="fg">
+            <label>Sous-titre (FR)</label>
+            <textarea id="ed-hero-sub-fr" rows="3"></textarea>
+          </div>
+          <div class="fg">
+            <label>Subtitle (EN)</label>
+            <textarea id="ed-hero-sub-en" rows="3"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- À Propos tab -->
+      <div id="etab-about" class="etab-content card" style="display:none">
+        <div class="fg">
+          <label>Nom affiché (Nom / Name)</label>
+          <input type="text" id="ed-about-name" placeholder="Sanad Muhmud">
+        </div>
+        <div class="form-row-2">
+          <div class="fg">
+            <label>Titre du poste (FR)</label>
+            <input type="text" id="ed-about-title-fr" placeholder="Maître Électricien Certifié">
+          </div>
+          <div class="fg">
+            <label>Job title (EN)</label>
+            <input type="text" id="ed-about-title-en" placeholder="Certified Master Electrician">
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="fg">
+            <label>Titre principal section (FR)</label>
+            <input type="text" id="ed-about-mainTitle-fr" placeholder="Expert en Électricité depuis 20+ Ans">
+          </div>
+          <div class="fg">
+            <label>Section main title (EN)</label>
+            <input type="text" id="ed-about-mainTitle-en" placeholder="Electrical Expert for 20+ Years">
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="fg">
+            <label>Paragraphe 1 (FR)</label>
+            <textarea id="ed-about-p1-fr" rows="4"></textarea>
+          </div>
+          <div class="fg">
+            <label>Paragraph 1 (EN)</label>
+            <textarea id="ed-about-p1-en" rows="4"></textarea>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="fg">
+            <label>Paragraphe 2 (FR)</label>
+            <textarea id="ed-about-p2-fr" rows="4"></textarea>
+          </div>
+          <div class="fg">
+            <label>Paragraph 2 (EN)</label>
+            <textarea id="ed-about-p2-en" rows="4"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Services tab -->
+      <div id="etab-services" class="etab-content card" style="display:none">
+        <div id="servicesEditor"></div>
+      </div>
+
+      <!-- Contact tab -->
+      <div id="etab-contact" class="etab-content card" style="display:none">
+        <div class="form-row-2">
+          <div class="fg">
+            <label>Téléphone principal</label>
+            <input type="tel" id="ed-phone1" placeholder="514 651-5159">
+          </div>
+          <div class="fg">
+            <label>Téléphone secondaire</label>
+            <input type="tel" id="ed-phone2" placeholder="514 998-7787">
+          </div>
+        </div>
+        <div class="fg">
+          <label>Adresse courriel</label>
+          <input type="email" id="ed-email" placeholder="mahmudsanad@icloud.com">
+        </div>
+        <div class="fg">
+          <label>Adresse postale</label>
+          <input type="text" id="ed-address" placeholder="4390 Kingston, Pierrefonds, QC H9A 2S9">
+        </div>
+      </div>
+
+      <!-- Images tab -->
+      <div id="etab-images" class="etab-content card" style="display:none">
+        <div id="imagesEditor"></div>
+      </div>
+
+      <!-- Typographie tab -->
+      <div id="etab-typo" class="etab-content card" style="display:none">
+        <div id="typoEditor"></div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS VIEW ── -->
+    <div id="view-settings" class="view">
+      <div class="view-header">
+        <h1><i class="fas fa-cog"></i> Paramètres</h1>
+      </div>
+      <div class="settings-grid">
+        <!-- Change password -->
+        <div class="card">
+          <div class="card-header"><h3><i class="fas fa-key"></i> Changer le mot de passe</h3></div>
+          <div class="card-body">
+            <div class="fg">
+              <label>Mot de passe actuel</label>
+              <input type="password" id="set-pwd-cur" placeholder="••••••••">
+            </div>
+            <div class="fg">
+              <label>Nouveau mot de passe</label>
+              <input type="password" id="set-pwd-new" placeholder="••••••••">
+            </div>
+            <div class="fg">
+              <label>Confirmer nouveau mot de passe</label>
+              <input type="password" id="set-pwd-confirm" placeholder="••••••••">
+            </div>
+            <div id="pwd-msg" style="font-size:.85rem;margin-bottom:.5rem"></div>
+            <button class="btn-act btn-gold" onclick="changePassword()">
+              <i class="fas fa-save"></i> Enregistrer
+            </button>
+          </div>
+        </div>
+
+        <!-- Company info -->
+        <div class="card">
+          <div class="card-header"><h3><i class="fas fa-building"></i> Informations de l'entreprise</h3></div>
+          <div class="card-body">
+            <div class="info-row"><span>Entreprise</span><strong>NOON GC INC.</strong></div>
+            <div class="info-row"><span>Technicien</span><strong>Sanad Muhmud</strong></div>
+            <div class="info-row"><span>RBQ</span><strong>5686-2097</strong></div>
+            <div class="info-row"><span>TPS/GST</span><strong>720 366 731 RT 0001</strong></div>
+            <div class="info-row"><span>TVQ/QST</span><strong>228 829 681 TQ 0001</strong></div>
+            <div class="info-row"><span>CMEQ</span><strong>Membre certifié</strong></div>
+          </div>
+        </div>
+
+        <!-- Data management -->
+        <div class="card">
+          <div class="card-header"><h3><i class="fas fa-database"></i> Gestion des données</h3></div>
+          <div class="card-body">
+            <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Exportez ou supprimez les données de travaux enregistrées.</p>
+            <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+              <button class="btn-act btn-navy" onclick="exportData()">
+                <i class="fas fa-download"></i> Exporter JSON
+              </button>
+              <button class="btn-act" style="background:#fee2e2;color:#dc2626" onclick="clearAllData()">
+                <i class="fas fa-trash"></i> Supprimer tout
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /admin-main -->
+</div><!-- /adminApp -->
+
+<!-- ─── JOB DETAIL MODAL ─── -->
+<div id="jobModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modalTitle">Détail du travail</h3>
+      <button onclick="closeModal()" class="modal-close"><i class="fas fa-times"></i></button>
+    </div>
+    <div id="modalBody" class="modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn-act btn-gold" id="modalPDFBtn">
+        <i class="fas fa-file-pdf"></i> Télécharger PDF
+      </button>
+      <button class="btn-act btn-wa" id="modalWABtn">
+        <i class="fab fa-whatsapp"></i> WhatsApp
+      </button>
+      <button class="btn-act" style="background:#fee2e2;color:#dc2626" id="modalDeleteBtn">
+        <i class="fas fa-trash"></i> Supprimer
+      </button>
+      <button class="btn-act" style="background:#e2e8f0;color:#333" onclick="closeModal()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TOAST ─── -->
+<div id="toast" class="toast"></div>
+
+<script src="js/translations.js"></script>
+<script src="js/pdf.js"></script>
+<script src="js/admin-app.js"></script>
+</body>
+</html>
