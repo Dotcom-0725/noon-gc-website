@@ -3,23 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="NOON GC INC. — Électricien Certifié Québec | Travaux électriques résidentiels et commerciaux | Devis et factures PDF | Certified Electrician Quebec">
-  <meta name="keywords" content="électricien, electrician, Québec, Montreal, RBQ, NOON GC INC, Sanad Muhmud, travaux électriques, electric works">
-  <title>NOON GC INC. | Électricien Certifié Québec | Certified Electrician</title>
+  <meta name="description" content="NOON GC INC. — Électricien Certifié Québec">
+  <title>NOON GC INC. | Électricien Certifié Québec</title>
 
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Google Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@700;800;900&display=swap" rel="stylesheet">
-
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-  <!-- jsPDF + AutoTable -->
+  <!-- jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
+  <!-- ⚡ Supabase JS (مهم جداً) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Loading state للخدمات */
+    .service-card.loading { opacity: 0.6; pointer-events: none; }
+    .service-card .price { font-weight: 700; color: #f59e0b; }
+  </style>
 </head>
 <body>
 
@@ -33,24 +36,21 @@
           <span class="logo-sub" data-i18n="nav.tagline">Électricien Certifié · RBQ 5686-2097</span>
         </div>
       </a>
-
       <div class="nav-links" id="navLinks">
-        <a href="#services"  data-i18n="nav.services">Services</a>
-        <a href="#about"     data-i18n="nav.about">À Propos</a>
-        <a href="#contact"   data-i18n="nav.contact">Contact</a>
+        <a href="#services" data-i18n="nav.services">Services</a>
+        <a href="#about" data-i18n="nav.about">À Propos</a>
+        <a href="#contact" data-i18n="nav.contact">Contact</a>
       </div>
-
       <div class="nav-actions">
-        <button class="lang-btn" id="langBtn" onclick="toggleLanguage()" aria-label="Toggle language">
+        <button class="lang-btn" id="langBtn" onclick="toggleLanguage()">
           <span class="lang-active" id="langLabel">FR</span>
           <span class="lang-sep">|</span>
           <span class="lang-other" id="langOther">EN</span>
         </button>
         <a href="tel:5149987787" class="nav-phone">
-          <i class="fas fa-phone-alt"></i>
-          <span>514&nbsp;998‑7787</span>
+          <i class="fas fa-phone-alt"></i><span>514&nbsp;998‑7787</span>
         </a>
-        <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+        <button class="hamburger" id="hamburger" onclick="toggleMenu()">
           <span></span><span></span><span></span>
         </button>
       </div>
@@ -59,12 +59,6 @@
 
   <!-- ═══════════════════════════════════════ HERO ═══════════════════════════════════════ -->
   <section class="hero" id="home">
-    <div class="hero-bg">
-      <div class="grid-overlay"></div>
-      <div class="bolt-1">⚡</div>
-      <div class="bolt-2">⚡</div>
-      <div class="bolt-3">⚡</div>
-    </div>
     <div class="hero-inner">
       <div class="hero-badge">
         <i class="fas fa-shield-alt"></i>
@@ -84,17 +78,14 @@
           <i class="fas fa-file-invoice"></i>
           <span data-i18n="hero.btn1">Demander un Devis</span>
         </button>
-        <a href="https://wa.me/15149987787?text=Bonjour%20NOON%20GC%20INC.%2C%20je%20vous%20contacte%20depuis%20votre%20site." target="_blank" class="btn btn-wa">
-          <i class="fab fa-whatsapp"></i>
-          <span>WhatsApp</span>
+        <a href="https://wa.me/15149987787" target="_blank" class="btn btn-wa">
+          <i class="fab fa-whatsapp"></i><span>WhatsApp</span>
         </a>
         <a href="tel:5149987787" class="btn btn-outline">
-          <i class="fas fa-phone-alt"></i>
-          <span>514 998‑7787</span>
+          <i class="fas fa-phone-alt"></i><span>514 998‑7787</span>
         </a>
       </div>
     </div>
-
     <div class="hero-stats">
       <div class="hstat"><span class="hstat-n">20+</span><span class="hstat-l" data-i18n="hero.s1">Ans d'exp.</span></div>
       <div class="hstat-div"></div>
@@ -106,7 +97,7 @@
     </div>
   </section>
 
-  <!-- ════════════════════════════════════ SERVICES ════════════════════════════════════ -->
+  <!-- ════════════════════════════════════ SERVICES (ديناميكي من Supabase) ════════════════════════════════════ -->
   <section class="section services-section" id="services">
     <div class="container">
       <div class="section-head">
@@ -114,7 +105,16 @@
         <h2 data-i18n="srv.title">Solutions Électriques Complètes</h2>
         <p data-i18n="srv.sub">Résidentiel · Commercial · Industriel — Matériaux et main-d'œuvre inclus</p>
       </div>
-      <div class="services-grid" id="servicesGrid"></div>
+      
+      <!-- ⚡ هنا راح تظهر الخدمات من Supabase -->
+      <div class="services-grid" id="servicesGrid">
+        <!-- Loading placeholder -->
+        <div class="service-card loading">
+          <div class="sc-icon"><i class="fas fa-spinner fa-spin"></i></div>
+          <h3>Chargement...</h3>
+          <p> Veuillez patienter </p>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -123,7 +123,6 @@
     <div class="container">
       <div class="about-grid">
         <div class="about-visual">
-          <!-- Carte CSS (par défaut, sans photo) -->
           <div class="about-card" id="aboutCard">
             <div class="about-bolt">⚡</div>
             <div class="about-name" id="aboutNameCard">Sanad Muhmud</div>
@@ -134,47 +133,17 @@
               <div class="cert"><i class="fas fa-star"></i> 20+ ans</div>
             </div>
           </div>
-          <!-- Version photo (affichée si photo uploadée depuis admin) -->
-          <div class="about-photo-wrap" id="aboutPhotoWrap" style="display:none">
-            <img id="aboutPhoto" src="" alt="Sanad Muhmud — Maître Électricien Certifié" class="about-photo">
-            <div class="about-card-overlay">
-              <div class="about-card-top">
-                <div class="about-bolt-small">⚡</div>
-                <div>
-                  <div class="about-name" id="aboutNamePhoto">Sanad Muhmud</div>
-                  <div class="about-title" data-i18n="about.jobtitle">Maître Électricien Certifié</div>
-                </div>
-              </div>
-              <div class="about-certs">
-                <div class="cert"><i class="fas fa-id-badge"></i> RBQ : 5686-2097</div>
-                <div class="cert"><i class="fas fa-hard-hat"></i> CMEQ</div>
-                <div class="cert"><i class="fas fa-star"></i> 20+ ans</div>
-              </div>
-            </div>
-          </div>
         </div>
         <div class="about-content">
           <span class="section-tag" data-i18n="about.tag">À Propos</span>
-          <h2 data-i18n="about.title" id="aboutTitle">Expert en Électricité depuis 20+ Ans</h2>
-          <p data-i18n="about.p1" id="about-p1">Avec plus de 20 ans d'expérience dans le domaine de l'électricité au Québec, NOON GC INC. offre des services professionnels, fiables et certifiés pour tous vos besoins électriques résidentiels et commerciaux.</p>
-          <p data-i18n="about.p2" id="about-p2">Membre certifié de la Corporation des Maîtres Électriciens du Québec (CMEQ), nous garantissons un travail conforme aux normes en vigueur et à la réglementation québécoise.</p>
+          <h2 data-i18n="about.title">Expert en Électricité depuis 20+ Ans</h2>
+          <p data-i18n="about.p1">Avec plus de 20 ans d'expérience dans le domaine de l'électricité au Québec, NOON GC INC. offre des services professionnels, fiables et certifiés pour tous vos besoins électriques résidentiels et commerciaux.</p>
+          <p data-i18n="about.p2">Membre certifié de la Corporation des Maîtres Électriciens du Québec (CMEQ), nous garantissons un travail conforme aux normes en vigueur et à la réglementation québécoise.</p>
           <div class="creds-grid">
-            <div class="cred">
-              <i class="fas fa-id-card"></i>
-              <div><strong>RBQ</strong><span>5686-2097</span></div>
-            </div>
-            <div class="cred">
-              <i class="fas fa-receipt"></i>
-              <div><strong>TPS/GST</strong><span>720 366 731 RT 0001</span></div>
-            </div>
-            <div class="cred">
-              <i class="fas fa-file-invoice-dollar"></i>
-              <div><strong>TVQ/QST</strong><span>228 829 681 TQ 0001</span></div>
-            </div>
-            <div class="cred">
-              <i class="fas fa-map-marker-alt"></i>
-              <div><strong data-i18n="about.addr">Adresse</strong><span>4390 Kingston, Pierrefonds QC H9A 2S9</span></div>
-            </div>
+            <div class="cred"><i class="fas fa-id-card"></i><div><strong>RBQ</strong><span>5686-2097</span></div></div>
+            <div class="cred"><i class="fas fa-receipt"></i><div><strong>TPS/GST</strong><span>720 366 731 RT 0001</span></div></div>
+            <div class="cred"><i class="fas fa-file-invoice-dollar"></i><div><strong>TVQ/QST</strong><span>228 829 681 TQ 0001</span></div></div>
+            <div class="cred"><i class="fas fa-map-marker-alt"></i><div><strong data-i18n="about.addr">Adresse</strong><span>4390 Kingston, Pierrefonds QC H9A 2S9</span></div></div>
           </div>
         </div>
       </div>
@@ -189,13 +158,15 @@
         <p data-i18n="cta.sub">Contactez-nous — réponse rapide par téléphone ou WhatsApp.</p>
       </div>
       <div class="cta-band-btns">
+        <button onclick="openDevisModal()" class="btn btn-cta-devis btn-lg">
+          <i class="fas fa-file-invoice"></i>
+          <span data-i18n="hero.btn1">Demander un Devis</span>
+        </button>
         <a href="tel:5149987787" class="btn btn-gold btn-lg">
-          <i class="fas fa-phone-alt"></i>
-          <span>514 998‑7787</span>
+          <i class="fas fa-phone-alt"></i><span>514 998‑7787</span>
         </a>
-        <a href="https://wa.me/15149987787?text=Bonjour%20NOON%20GC%20INC.%2C%20j%27aimerais%20un%20devis%20gratuit." target="_blank" class="btn btn-wa btn-lg">
-          <i class="fab fa-whatsapp"></i>
-          <span>WhatsApp</span>
+        <a href="https://wa.me/15149987787" target="_blank" class="btn btn-wa btn-lg">
+          <i class="fab fa-whatsapp"></i><span>WhatsApp</span>
         </a>
       </div>
     </div>
@@ -212,63 +183,56 @@
       <div class="contact-grid">
         <a href="tel:5149987787" class="contact-card">
           <div class="cc-icon"><i class="fas fa-phone-alt"></i></div>
-          <h3 data-i18n="ct.phone">Téléphone</h3>
-          <p>514 998‑7787</p>
+          <h3 data-i18n="ct.phone">Téléphone</h3><p>514 998‑7787</p>
         </a>
-        <a href="https://wa.me/15149987787?text=Bonjour%20NOON%20GC%20INC.%2C%20je%20vous%20contacte%20depuis%20votre%20site." target="_blank" class="contact-card">
+        <a href="https://wa.me/15149987787" target="_blank" class="contact-card">
           <div class="cc-icon" style="background:#d1fae5;color:#25D366"><i class="fab fa-whatsapp"></i></div>
-          <h3>WhatsApp</h3>
-          <p>514 998‑7787</p>
+          <h3>WhatsApp</h3><p>514 998‑7787</p>
         </a>
         <a href="mailto:mahmudsanad@icloud.com" class="contact-card">
           <div class="cc-icon"><i class="fas fa-envelope"></i></div>
-          <h3 data-i18n="ct.email">Courriel / Email</h3>
-          <p>mahmudsanad@icloud.com</p>
+          <h3 data-i18n="ct.email">Courriel / Email</h3><p>mahmudsanad@icloud.com</p>
         </a>
         <div class="contact-card">
           <div class="cc-icon"><i class="fas fa-map-marker-alt"></i></div>
-          <h3 data-i18n="ct.addr">Adresse</h3>
-          <p>4390 Kingston<br>Pierrefonds, QC H9A 2S9</p>
-        </div>
-      </div>
-
-      <!-- ── Promo développeur ── -->
-      <div class="dev-promo-banner">
-        <div class="dev-promo-grid">
-          <div class="dev-promo-left">
-            <div class="dev-promo-badge" data-i18n="dev.badge">Développeur Web</div>
-            <h3 class="dev-promo-title" data-i18n="dev.title">Votre projet mérite un<br><em>site qui convertit.</em></h3>
-            <p class="dev-promo-sub" data-i18n="dev.sub">Ce site a été conçu &amp; développé par <strong>Rachid DevWorks</strong>.<br>
-              Vous êtes restaurateur, commerçant ou entrepreneur ?<br>
-              Laissez-nous bâtir votre présence en ligne — rapide, moderne, et pensée pour attirer vos clients.
-            </p>
-            <ul class="dev-promo-list">
-              <li><span class="dev-promo-dot">⚡</span><span data-i18n="dev.li1">Livraison en 7 jours — devis gratuit en 24h</span></li>
-              <li><span class="dev-promo-dot">🎯</span><span data-i18n="dev.li2">Design sur mesure qui reflète votre identité</span></li>
-              <li><span class="dev-promo-dot">📱</span><span data-i18n="dev.li3">100% mobile-first — Google-optimisé (SEO)</span></li>
-              <li><span class="dev-promo-dot">💰</span><span data-i18n="dev.li4">Prix transparents, aucun frais caché</span></li>
-            </ul>
-            <a href="https://wa.me/15146906018?text=Bonjour%20Rachid%20DevWorks%2C%20je%20souhaite%20un%20devis%20pour%20mon%20site%20web."
-               target="_blank" class="dev-promo-btn" data-i18n="dev.btn">
-              <i class="fab fa-whatsapp"></i> Démarrer mon projet sur WhatsApp →
-            </a>
-            <p class="dev-promo-note" data-i18n="dev.note">Réponse garantie en moins de 24h &nbsp;·&nbsp; +1 (514) 690-6018</p>
-          </div>
-          <div class="dev-promo-right">
-            <div class="dev-promo-card">
-              <div class="dev-promo-logo">R</div>
-              <strong>Rachid DevWorks</strong>
-              <span data-i18n="dev.cardSub">Création de sites web professionnels</span>
-              <div class="dev-promo-stars">★★★★★</div>
-              <div class="dev-promo-tags">
-                <span>HTML/CSS</span><span>JavaScript</span><span>SEO</span><span>Responsive</span>
-              </div>
-            </div>
-          </div>
+          <h3 data-i18n="ct.addr">Adresse</h3><p>4390 Kingston<br>Pierrefonds, QC H9A 2S9</p>
         </div>
       </div>
     </div>
   </section>
+
+  <!-- ════════════════════════════════════ FOOTER ════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo-bolt">⚡</div>
+          <div><strong>NOON GC INC.</strong><span data-i18n="nav.tagline">Électricien Certifié · RBQ 5686-2097</span></div>
+        </div>
+        <div class="footer-col">
+          <h4 data-i18n="ft.lic">Licences &amp; Taxes</h4>
+          <p>RBQ : 5686-2097</p>
+          <p>TPS/GST : 720 366 731 RT 0001</p>
+          <p>TVQ/QST : 228 829 681 TQ 0001</p>
+        </div>
+        <div class="footer-col">
+          <h4 data-i18n="ft.contact">Contact</h4>
+          <p><i class="fas fa-phone-alt"></i> 514 998-7787</p>
+          <p><i class="fab fa-whatsapp"></i> 514 998-7787</p>
+          <p><i class="fas fa-envelope"></i> mahmudsanad@icloud.com</p>
+        </div>
+        <div class="footer-col">
+          <h4 data-i18n="ft.addr">Adresse</h4>
+          <p>4390 Kingston</p><p>Pierrefonds, QC H9A 2S9</p><p>Canada</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 NOON GC INC. — <span data-i18n="ft.rights">Tous droits réservés</span></p>
+        <p data-i18n="ft.member">Membre certifié — Corporation des Maîtres Électriciens du Québec (CMEQ)</p>
+        <p><a href="admin.html" class="admin-link"><i class="fas fa-lock"></i> <span data-i18n="ft.admin">Espace Admin</span></a></p>
+      </div>
+    </div>
+  </footer>
 
   <!-- ════════════════════════════════════ DEVIS MODAL ════════════════════════════════════ -->
   <div id="devisModal" class="dv-overlay" style="display:none" onclick="if(event.target===this)closeDevisModal()">
@@ -283,9 +247,7 @@
         </div>
         <button class="dv-close" onclick="closeDevisModal()"><i class="fas fa-times"></i></button>
       </div>
-
       <div class="dv-body">
-        <!-- Infos client -->
         <div class="dv-section-title"><i class="fas fa-user"></i> <span data-i18n="dvm.clientInfo">Informations Client</span></div>
         <div class="dv-row2">
           <div class="dv-fg">
@@ -307,8 +269,6 @@
             <input type="text" id="dv-addr" placeholder="123 Rue Exemple, Montréal, QC">
           </div>
         </div>
-
-        <!-- Détails travaux -->
         <div class="dv-section-title" style="margin-top:1.25rem"><i class="fas fa-tools"></i> <span data-i18n="dvm.workDetail">Détails des Travaux</span></div>
         <div class="dv-fg">
           <label data-i18n="dvm.workType">Type de travail <span class="req">*</span></label>
@@ -340,20 +300,16 @@
             </div>
           </div>
         </div>
-
         <div id="dv-error" class="dv-error" style="display:none">
           <i class="fas fa-exclamation-triangle"></i> <span data-i18n="dvm.err">Veuillez remplir les champs obligatoires (*)</span>
         </div>
       </div>
-
       <div class="dv-footer">
         <button class="btn btn-wa btn-lg" onclick="sendDevisWA()">
-          <i class="fab fa-whatsapp"></i>
-          <span data-i18n="dvm.sendWA">Envoyer par WhatsApp</span>
+          <i class="fab fa-whatsapp"></i><span data-i18n="dvm.sendWA">Envoyer par WhatsApp</span>
         </button>
         <button class="btn btn-gold btn-lg" onclick="sendDevisEmail()">
-          <i class="fas fa-envelope"></i>
-          <span data-i18n="dvm.sendEmail">Envoyer par Email</span>
+          <i class="fas fa-envelope"></i><span data-i18n="dvm.sendEmail">Envoyer par Email</span>
         </button>
         <button class="btn btn-outline-dark" onclick="closeDevisModal()">
           <span data-i18n="dvm.cancel">Annuler</span>
@@ -362,51 +318,132 @@
     </div>
   </div>
 
-  <!-- ════════════════════════════════════ FOOTER ════════════════════════════════════ -->
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <div class="logo-bolt">⚡</div>
-          <div>
-            <strong>NOON GC INC.</strong>
-            <span data-i18n="nav.tagline">Électricien Certifié · RBQ 5686-2097</span>
-          </div>
-        </div>
-        <div class="footer-col">
-          <h4 data-i18n="ft.lic">Licences &amp; Taxes</h4>
-          <p>RBQ : 5686-2097</p>
-          <p>TPS/GST : 720 366 731 RT 0001</p>
-          <p>TVQ/QST : 228 829 681 TQ 0001</p>
-        </div>
-        <div class="footer-col">
-          <h4 data-i18n="ft.contact">Contact</h4>
-          <p><i class="fas fa-phone-alt"></i> 514 998-7787</p>
-          <p><i class="fab fa-whatsapp"></i> 514 998-7787</p>
-          <p><i class="fas fa-envelope"></i> mahmudsanad@icloud.com</p>
-        </div>
-        <div class="footer-col">
-          <h4 data-i18n="ft.addr">Adresse</h4>
-          <p>4390 Kingston</p>
-          <p>Pierrefonds, QC H9A 2S9</p>
-          <p>Canada</p>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>&copy; 2026 NOON GC INC. — <span data-i18n="ft.rights">Tous droits réservés</span></p>
-        <p data-i18n="ft.member">Membre certifié — Corporation des Maîtres Électriciens du Québec (CMEQ)</p>
-        <p><a href="admin.html" class="admin-link"><i class="fas fa-lock"></i> <span data-i18n="ft.admin">Espace Admin</span></a></p>
-      </div>
-    </div>
-  </footer>
+  <!-- ⚡ كود الربط مع Supabase (في نهاية الصفحة) -->
+  <script>
+    // ═══════════════════════════════════════════════════════════════
+    // ⚡️ إعدادات Supabase - ⚠️ استبدل القيم أدناه بمفاتيحك من لوحة Supabase
+    // ═══════════════════════════════════════════════════════════════
+    const SUPABASE_URL = 'https://noon-gc-website.supabase.co'; // ← ضع رابط مشروعك هنا
+    const SUPABASE_ANON_KEY = 'sb_publishable_FTApumKK40TJ_FUUh_uleg_gdpLIbQE'; // ← ضع مفتاحك هنا
+    
+    // إنشاء عميل Supabase
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    // اللغة الحالية (تتغير مع زر اللغة في الموقع)
+    let currentLang = document.documentElement.getAttribute('data-lang') || 'fr';
+    
+    // ═══════════════════════════════════════════════════════════════
+    // 📦 دالة جلب وعرض الخدمات من Supabase
+    // ═══════════════════════════════════════════════════════════════
+    async function loadServices() {
+      const grid = document.getElementById('servicesGrid');
+      
+      try {
+        // جلب الخدمات النشطة فقط
+        const { data: services, error } = await supabase
+          .from('services')
+          .select('*')
+          .eq('active', true)
+          .order('id', { ascending: true });
+        
+        if (error) throw error;
+        
+        if (!services || services.length === 0) {
+          grid.innerHTML = `<p style="text-align:center; grid-column: 1/-1;">Aucun service disponible pour le moment.</p>`;
+          return;
+        }
+        
+        // عرض الخدمات
+        grid.innerHTML = services.map(svc => {
+          const title = currentLang === 'fr' ? svc.title_fr : svc.title_en;
+          const desc = currentLang === 'fr' ? svc.desc_fr : svc.desc_en;
+          const price = svc.price_from ? `À partir de <span class="price">${svc.price_from} ${svc.currency || 'CAD'}</span>` : '';
+          
+          return `
+            <div class="service-card" data-slug="${svc.slug}">
+              <div class="sc-icon"><i class="fas ${svc.icon || 'fa-bolt'}"></i></div>
+              <h3>${title}</h3>
+              <p>${desc}</p>
+              ${price ? `<div class="sc-price">${price}</div>` : ''}
+              <button class="btn btn-sm btn-outline" onclick="openDevisModal('${svc.slug}')">
+                <i class="fas fa-file-invoice"></i> Devis
+              </button>
+            </div>
+          `;
+        }).join('');
+        
+      } catch (err) {
+        console.error('❌ خطأ في جلب الخدمات:', err);
+        grid.innerHTML = `<p style="text-align:center; color:#dc2626; grid-column: 1/-1;">Erreur de chargement des services. Veuillez réessayer.</p>`;
+      }
+    }
+    
+    // ═══════════════════════════════════════════════════════════════
+    // 🔄 الاستماع للتحديثات الفورية من Supabase (Realtime)
+    // ═══════════════════════════════════════════════════════════════
+    function subscribeToServices() {
+      supabase
+        .channel('services-public')
+        .on('postgres_changes', 
+          { event: '*', schema: 'public', table: 'services' }, 
+          payload => {
+            console.log('🔄 تغيير في الخدمات:', payload);
+            loadServices(); // إعادة تحميل الخدمات فوراً
+          }
+        )
+        .subscribe();
+    }
+    
+    // ═══════════════════════════════════════════════════════════════
+    // 🌐 دعم تغيير اللغة (تحديث المحتوى عند التبديل)
+    // ═══════════════════════════════════════════════════════════════
+    function updateServicesLanguage() {
+      currentLang = document.documentElement.getAttribute('data-lang') || 'fr';
+      loadServices();
+    }
+    
+    // ═══════════════════════════════════════════════════════════════
+    // 🚀 تشغيل كل شيء عند تحميل الصفحة
+    // ═══════════════════════════════════════════════════════════════
+    document.addEventListener('DOMContentLoaded', () => {
+      loadServices();      // جلب الخدمات أول مرة
+      subscribeToServices(); // تفعيل التحديث الفوري
+      
+      // مراقبة تغيير اللغة من الكود الأصلي
+      const originalToggle = window.toggleLanguage;
+      if (originalToggle) {
+        window.toggleLanguage = function() {
+          originalToggle();
+          setTimeout(updateServicesLanguage, 100); // تحديث الخدمات بعد تغيير اللغة
+        };
+      }
+    });
+    
+    // ═══════════════════════════════════════════════════════════════
+    // 🔧 دالة مساعدة لفتح نموذج الطلب مع خدمة محددة
+    // ═══════════════════════════════════════════════════════════════
+    function openDevisModal(serviceSlug = null) {
+      // إذا كان هناك خدمة محددة، نحددها في النموذج
+      if (serviceSlug) {
+        setTimeout(() => {
+          const checkboxes = document.querySelectorAll('#dv-types input[type="checkbox"]');
+          checkboxes.forEach(cb => {
+            if (cb.value.toLowerCase().includes(serviceSlug)) {
+              cb.checked = true;
+            }
+          });
+        }, 300);
+      }
+      
+      // فتح المودال (نفس دالتك الأصلية)
+      const modal = document.getElementById('devisModal');
+      if (modal) modal.style.display = 'flex';
+    }
+  </script>
 
-  <!-- Floating Admin Button -->
-  <a href="admin.html" class="fab-admin" title="Espace Admin">
-    <i class="fas fa-lock fab-icon"></i>
-    <span class="fab-label">Admin</span>
-  </a>
-
+  <!-- ملفات الجافاسكريبت الأصلية (بعد كود Supabase) -->
   <script src="js/translations.js"></script>
   <script src="js/app.js"></script>
+  
 </body>
 </html>

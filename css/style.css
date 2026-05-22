@@ -683,6 +683,15 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 }
 .cta-band p { color: rgba(255,255,255,.7); font-size: .95rem; }
 .cta-band-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
+.btn-cta-devis {
+  background: transparent; color: var(--gold);
+  border: 2px solid var(--gold);
+  box-shadow: 0 4px 20px rgba(244,196,48,.2);
+}
+.btn-cta-devis:hover {
+  background: var(--gold); color: var(--navy);
+  transform: translateY(-2px); box-shadow: 0 8px 28px rgba(244,196,48,.45);
+}
 
 /* ════════════════════ FLOATING ADMIN BUTTON ════════════════════ */
 .fab-admin {
